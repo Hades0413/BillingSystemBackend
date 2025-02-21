@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "er+RVtKPqkzdizKPrpenEX1XX1eYQNWA3LRAEiKTbos=",
+  "Source": "BillingSystemBackend",
+  "BasePath": "_content/BillingSystemBackend",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
