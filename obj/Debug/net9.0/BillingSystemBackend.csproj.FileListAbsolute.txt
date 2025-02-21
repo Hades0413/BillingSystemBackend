@@ -71,3 +71,4 @@
 /mnt/Disco2/Proyectos-Repo/BillingSystemBackend/obj/Debug/net9.0/BillingSystemBackend.pdb
 /mnt/Disco2/Proyectos-Repo/BillingSystemBackend/obj/Debug/net9.0/BillingSystemBackend.genruntimeconfig.cache
 /mnt/Disco2/Proyectos-Repo/BillingSystemBackend/obj/Debug/net9.0/ref/BillingSystemBackend.dll
+/mnt/Disco2/Proyectos-Repo/BillingSystemBackend/obj/Debug/net9.0/BillingSystemBackend.sourcelink.json

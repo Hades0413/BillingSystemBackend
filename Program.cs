@@ -32,16 +32,21 @@ builder.Services.AddDbContext<EmpresaDbContext>(options =>
 builder.Services.AddDbContext<CategoriaDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
 
+builder.Services.AddDbContext<ProductoDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
+
 
 builder.Services.AddScoped<AuthDbContext>();
 builder.Services.AddScoped<RubroDbContext>();
 builder.Services.AddScoped<EmpresaDbContext>();
 builder.Services.AddScoped<CategoriaDbContext>();
+builder.Services.AddScoped<ProductoDbContext>();
 
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<RubroService>();
 builder.Services.AddScoped<EmpresaService>();
 builder.Services.AddScoped<CategoriaService>();
+builder.Services.AddScoped<ProductoService>();
 
 builder.Services.AddControllersWithViews();
 
