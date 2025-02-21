@@ -49,5 +49,31 @@ namespace BillingSystemBackend.Controllers
                 return StatusCode(500, new ErrorResponse("Hubo un problema al registrar el producto. Intente nuevamente.", ex.Message));
             }
         }
+        
+        // Método para listar productos por ID de usuario
+        [HttpGet("listar/{usuarioId}")]
+        public async Task<IActionResult> ListarProductos(int usuarioId)
+        {
+            if (usuarioId <= 0)
+            {
+                return BadRequest(new ErrorResponse("El ID del usuario debe ser mayor que 0."));
+            }
+
+            try
+            {
+                var productos = await _productoService.ListarProductosConUsuarioIdAsync(usuarioId);
+
+                if (productos == null || productos.Count == 0)
+                {
+                    return NotFound(new ErrorResponse("No se encontraron productos para este usuario."));
+                }
+
+                return Ok(new SuccessResponse("Productos listados correctamente.", productos));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorResponse("Hubo un problema al listar los productos. Intente nuevamente.", ex.Message));
+            }
+        }
     }
 }

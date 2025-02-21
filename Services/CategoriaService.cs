@@ -1,8 +1,8 @@
 using BillingSystemBackend.Data;
 using BillingSystemBackend.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
 
 namespace BillingSystemBackend.Services
 {
@@ -15,11 +15,12 @@ namespace BillingSystemBackend.Services
             _categoriaDbContext = categoriaDbContext;
         }
 
-        public async Task<List<Categoria>> ObtenerCategoriasAsync(int usuarioId)
+        // Método para listar las categorías de un usuario
+        public async Task<List<Categoria>> ListarCategoriasConUsuarioIdAsync(int usuarioId)
         {
             try
             {
-                return await _categoriaDbContext.ObtenerCategoriasAsync(usuarioId);
+                return await _categoriaDbContext.ListarCategoriasConUsuarioIdAsync(usuarioId);
             }
             catch (Exception ex)
             {
@@ -27,6 +28,7 @@ namespace BillingSystemBackend.Services
             }
         }
 
+        // Obtener una categoría por su ID
         public async Task<Categoria> ObtenerCategoriaPorIdAsync(int id)
         {
             try
@@ -39,6 +41,7 @@ namespace BillingSystemBackend.Services
             }
         }
 
+        // Método para registrar una nueva categoría
         public async Task<(bool success, string mensaje, Categoria categoria)> RegistrarCategoriaAsync(int usuarioId, string categoriaNombre)
         {
             try

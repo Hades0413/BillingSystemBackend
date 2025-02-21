@@ -43,5 +43,18 @@ namespace BillingSystemBackend.Services
                 throw new Exception("Error al registrar el producto.", ex);
             }
         }
+        
+        // Método para listar productos por ID de usuario
+        public async Task<List<Producto>> ListarProductosConUsuarioIdAsync(int usuarioId)
+        {
+            try
+            {
+                return await _productoDbContext.ListarProductosConUsuarioIdAsync(usuarioId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener los productos.", ex);
+            }
+        }
     }
 }

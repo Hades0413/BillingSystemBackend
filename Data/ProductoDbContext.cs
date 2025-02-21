@@ -12,8 +12,49 @@ namespace BillingSystemBackend.Data
         {
         }
 
-        public DbSet<Producto> Productos { get; set; }
         
+        public DbSet<Producto> Productos { get; set; }
+        public DbSet<Categoria> Categorias { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Unidad> Unidades { get; set; }
+        
+        // Método para listar productos por ID de usuario
+        public async Task<List<Producto>> ListarProductosConUsuarioIdAsync(int usuarioId)
+        {
+            if (usuarioId <= 0)
+                throw new ArgumentException("El ID del usuario debe ser mayor que 0.", nameof(usuarioId));
+
+            var parametros = new SqlParameter("@UsuarioId", usuarioId);
+
+            try
+            {
+                var productos = await Productos
+                    .FromSqlRaw("EXEC ListarProductosConUsuarioId @UsuarioId", parametros)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                foreach (var producto in productos)
+                {
+                    if (string.IsNullOrEmpty(producto.ProductoImagen))
+                    {
+                        producto.ProductoImagen = "default_image.png";
+                    }
+
+                    if (!producto.ProductoImpuestoIgv.HasValue)
+                    {
+                        producto.ProductoImpuestoIgv = 0m;
+                    }
+                }
+
+                return productos;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Ocurrió un error al obtener los productos.", ex);
+            }
+        }
+
+
         public async Task<(bool success, int productoId, string mensaje)> RegistrarProductoAsync(
             int usuarioId, 
             string productoCodigo, 
