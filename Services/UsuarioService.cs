@@ -9,9 +9,9 @@ namespace BillingSystemBackend.Services
 {
     public class UsuarioService
     {
-        private readonly AuthDbContext _context;
+        private readonly UsuarioDbContext _context;
 
-        public UsuarioService(AuthDbContext context)
+        public UsuarioService(UsuarioDbContext context)
         {
             _context = context;
         }

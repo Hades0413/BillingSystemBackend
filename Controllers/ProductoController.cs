@@ -1,8 +1,6 @@
 using BillingSystemBackend.Models;
 using BillingSystemBackend.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System;
 
 namespace BillingSystemBackend.Controllers
 {
@@ -14,15 +12,25 @@ namespace BillingSystemBackend.Controllers
 
         public ProductoController(ProductoService productoService)
         {
-            _productoService = productoService;
+            _productoService = productoService ?? throw new ArgumentNullException(nameof(productoService));
         }
 
         [HttpPost("registrar")]
         public async Task<IActionResult> Registrar([FromBody] Producto producto)
         {
-            if (producto == null || string.IsNullOrEmpty(producto.ProductoCodigo) || string.IsNullOrEmpty(producto.ProductoNombre))
+            if (producto == null)
             {
-                return BadRequest(new ErrorResponse("El producto no puede ser nulo o vacío."));
+                return BadRequest(new ErrorResponse("El producto no puede ser nulo."));
+            }
+
+            if (string.IsNullOrEmpty(producto.ProductoCodigo))
+            {
+                return BadRequest(new ErrorResponse("El código del producto no puede estar vacío."));
+            }
+
+            if (string.IsNullOrEmpty(producto.ProductoNombre))
+            {
+                return BadRequest(new ErrorResponse("El nombre del producto no puede estar vacío."));
             }
 
             try
@@ -34,11 +42,11 @@ namespace BillingSystemBackend.Controllers
                     return BadRequest(new ErrorResponse(mensaje));
                 }
 
-                return Ok(new SuccessResponse(mensaje, productoRegistrado));
+                return Ok(new SuccessResponse("Producto registrado exitosamente.", productoRegistrado));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ErrorResponse("Error al registrar el producto.", ex.Message));
+                return StatusCode(500, new ErrorResponse("Hubo un problema al registrar el producto. Intente nuevamente.", ex.Message));
             }
         }
     }

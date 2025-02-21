@@ -23,19 +23,19 @@ namespace BillingSystemBackend.Services
 
         public async Task<(int empresaId, string mensaje)> RegistrarEmpresaAsync(Empresa empresa)
         {
-            // Validamos si ya existe una empresa con el mismo RUC
-            if (await _context.Empresas.AnyAsync(e => e.EmpresaRuc == empresa.EmpresaRuc))
+            if (!string.IsNullOrEmpty(empresa.EmpresaRuc))
             {
-                return (0, "Ya existe una empresa con este RUC.");
+                if (await _context.Empresas.AnyAsync(e => e.EmpresaRuc == empresa.EmpresaRuc))
+                {
+                    return (0, "Ya existe una empresa con este RUC.");
+                }
             }
 
-            // Validamos si los campos UsuarioId y RubroId son válidos (en este caso deben ser diferentes de 0)
             if (empresa.UsuarioId == 0 || empresa.RubroId == 0)
             {
                 return (0, "UsuarioId y RubroId son obligatorios.");
             }
 
-            // Ejecutamos el procedimiento almacenado InsertarEmpresa
             var empresaIdParam = new SqlParameter("@empresaId", System.Data.SqlDbType.Int) { Direction = System.Data.ParameterDirection.Output };
             var mensajeParam = new SqlParameter("@mensaje", System.Data.SqlDbType.NVarChar, 255) { Direction = System.Data.ParameterDirection.Output };
 
@@ -50,5 +50,6 @@ namespace BillingSystemBackend.Services
 
             return (empresaId, mensaje);
         }
+
     }
 }

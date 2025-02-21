@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BillingSystemBackend.Models
 {
-    public class AuthDbContext : DbContext
+    public class UsuarioDbContext : DbContext
     {
-        public AuthDbContext(DbContextOptions<AuthDbContext> options)
+        public UsuarioDbContext(DbContextOptions<UsuarioDbContext> options)
             : base(options)
         {
         }

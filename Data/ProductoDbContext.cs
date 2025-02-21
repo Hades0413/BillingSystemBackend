@@ -1,9 +1,7 @@
 using BillingSystemBackend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
-using System;
 using System.Data;
-using System.Threading.Tasks;
 
 namespace BillingSystemBackend.Data
 {
@@ -15,7 +13,7 @@ namespace BillingSystemBackend.Data
         }
 
         public DbSet<Producto> Productos { get; set; }
-
+        
         public async Task<(bool success, int productoId, string mensaje)> RegistrarProductoAsync(
             int usuarioId, 
             string productoCodigo, 
@@ -27,6 +25,17 @@ namespace BillingSystemBackend.Data
             int categoriaId, 
             string productoImagen)
         {
+            if (usuarioId <= 0)
+                throw new ArgumentException("El ID del usuario debe ser mayor que 0.");
+            if (string.IsNullOrEmpty(productoCodigo))
+                throw new ArgumentException("El código del producto no puede ser vacío.");
+            if (string.IsNullOrEmpty(productoNombre))
+                throw new ArgumentException("El nombre del producto no puede ser vacío.");
+            if (productoPrecioVenta <= 0)
+                throw new ArgumentException("El precio de venta debe ser mayor a 0.");
+            if (productoStock < 0)
+                throw new ArgumentException("El stock no puede ser negativo.");
+
             try
             {
                 var parameters = new[]
@@ -54,31 +63,44 @@ namespace BillingSystemBackend.Data
                     new SqlParameter("@mensaje", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output }
                 };
 
-                await Database.ExecuteSqlRawAsync(
-                    "EXEC dbo.InsertarProducto " +
-                    "@usuario_id, " +
-                    "@producto_codigo, " +
-                    "@producto_nombre, " +
-                    "@producto_stock, " +
-                    "@producto_precio_venta, " +
-                    "@producto_impuesto_igv, " +
-                    "@unidad_id, " +
-                    "@categoria_id, " +
-                    "@producto_imagen, " +
-                    "@producto_id OUTPUT, " +
-                    "@mensaje OUTPUT",
-                    parameters);
+                using (var transaction = await Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        await Database.ExecuteSqlRawAsync(
+                            "EXEC dbo.InsertarProducto " +
+                            "@usuario_id, " +
+                            "@producto_codigo, " +
+                            "@producto_nombre, " +
+                            "@producto_stock, " +
+                            "@producto_precio_venta, " +
+                            "@producto_impuesto_igv, " +
+                            "@unidad_id, " +
+                            "@categoria_id, " +
+                            "@producto_imagen, " +
+                            "@producto_id OUTPUT, " +
+                            "@mensaje OUTPUT",
+                            parameters);
 
-                var productoId = (int)parameters[9].Value;
-                var mensaje = parameters[10].Value.ToString();
+                        var productoId = (int)parameters[9].Value;
+                        var mensaje = parameters[10].Value.ToString();
 
-                return productoId > 0 
-                    ? (true, productoId, mensaje)
-                    : (false, productoId, mensaje);
+                        await transaction.CommitAsync();
+
+                        return productoId > 0 
+                            ? (true, productoId, mensaje)
+                            : (false, productoId, mensaje);
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        throw new InvalidOperationException("Error al registrar el producto, la transacción fue revertida.", ex);
+                    }
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error al registrar producto: {ex.Message}", ex);
+                throw new Exception($"Error al registrar el producto con código {productoCodigo}: {ex.Message}", ex);
             }
         }
     }

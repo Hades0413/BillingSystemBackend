@@ -1,8 +1,6 @@
 using BillingSystemBackend.Models;
 using BillingSystemBackend.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System;
 
 namespace BillingSystemBackend.Controllers
 {
@@ -14,19 +12,30 @@ namespace BillingSystemBackend.Controllers
 
         public CategoriaController(CategoriaService categoriaService)
         {
-            _categoriaService = categoriaService;
+            _categoriaService = categoriaService ?? throw new ArgumentNullException(nameof(categoriaService));
         }
 
         [HttpGet]
         public async Task<IActionResult> ObtenerCategorias([FromQuery] int usuarioId)
         {
+            if (usuarioId <= 0)
+            {
+                return BadRequest(new ErrorResponse("El ID del usuario es inválido."));
+            }
+
             try
             {
                 var categorias = await _categoriaService.ObtenerCategoriasAsync(usuarioId);
+                if (categorias == null || categorias.Count == 0)
+                {
+                    return NotFound(new ErrorResponse("No se encontraron categorías para este usuario."));
+                }
+
                 return Ok(new SuccessResponse("Categorías obtenidas correctamente.", categorias));
             }
             catch (Exception ex)
             {
+                // Se puede especificar un tipo de excepción más concreto si es necesario
                 return StatusCode(500, new ErrorResponse("Error al obtener las categorías.", ex.Message));
             }
         }
@@ -34,9 +43,14 @@ namespace BillingSystemBackend.Controllers
         [HttpPost("registrar")]
         public async Task<IActionResult> Registrar([FromBody] Categoria categoria)
         {
-            if (categoria == null || string.IsNullOrEmpty(categoria.CategoriaNombre))
+            if (categoria == null)
             {
-                return BadRequest(new ErrorResponse("La categoría no puede ser nula o vacía."));
+                return BadRequest(new ErrorResponse("La categoría no puede ser nula."));
+            }
+
+            if (string.IsNullOrEmpty(categoria.CategoriaNombre))
+            {
+                return BadRequest(new ErrorResponse("El nombre de la categoría no puede estar vacío."));
             }
 
             try
@@ -48,7 +62,7 @@ namespace BillingSystemBackend.Controllers
                     return BadRequest(new ErrorResponse(mensaje));
                 }
 
-                return Ok(new SuccessResponse(mensaje, categoriaRegistrada));
+                return CreatedAtAction(nameof(ObtenerCategorias), new { usuarioId = categoria.UsuarioId }, new SuccessResponse(mensaje, categoriaRegistrada));
             }
             catch (Exception ex)
             {

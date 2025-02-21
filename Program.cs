@@ -20,7 +20,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddDbContext<AuthDbContext>(options =>
+builder.Services.AddDbContext<UsuarioDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
 
 builder.Services.AddDbContext<RubroDbContext>(options =>
@@ -36,7 +36,7 @@ builder.Services.AddDbContext<ProductoDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
 
 
-builder.Services.AddScoped<AuthDbContext>();
+builder.Services.AddScoped<UsuarioDbContext>();
 builder.Services.AddScoped<RubroDbContext>();
 builder.Services.AddScoped<EmpresaDbContext>();
 builder.Services.AddScoped<CategoriaDbContext>();

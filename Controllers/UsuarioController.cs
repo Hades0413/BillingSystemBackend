@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BillingSystemBackend.Models;
 using BillingSystemBackend.Services;
-using System.Threading.Tasks;
 
 namespace BillingSystemBackend.Controllers
 {
