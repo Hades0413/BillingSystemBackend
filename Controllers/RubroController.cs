@@ -17,30 +17,23 @@ namespace BillingSystemBackend.Controllers
             _rubroService = rubroService ?? throw new ArgumentNullException(nameof(rubroService), "El servicio de rubros no puede ser nulo.");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ObtenerRubros()
+        [HttpGet("listar")]
+        public async Task<ActionResult<List<Rubro>>> ObtenerRubros()
         {
             try
             {
                 var rubros = await _rubroService.ObtenerRubrosAsync();
-
-                if (rubros == null || rubros.Count == 0)
-                {
-                    return NotFound(new ErrorResponse("No se encontraron rubros."));
-                }
-
-                return Ok(new SuccessResponse("Rubros obtenidos correctamente.", rubros));
+                return Ok(rubros);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                return StatusCode(500, new ErrorResponse("Hubo un problema al obtener los rubros.", ex.Message));
+                return StatusCode(500, new { mensaje = "Error al obtener los rubros", error = ex.Message });
             }
         }
 
         [HttpPost("registrar")]
         public async Task<IActionResult> Registrar([FromBody] Rubro rubro)
         {
-            // Validación de entrada
             if (rubro == null)
             {
                 return BadRequest(new ErrorResponse("El rubro no puede ser nulo."));

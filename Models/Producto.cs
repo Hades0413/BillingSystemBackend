@@ -45,14 +45,5 @@ namespace BillingSystemBackend.Models
         [Column("producto_fecha_ultima_actualizacion")]
         public DateTime ProductoFechaUltimaActualizacion { get; set; } = DateTime.Now;
         
-        // Propiedades de navegación (relaciones con otras entidades)
-        // /****
-        //[Column("usuario_id")]
-        //public Usuario Usuario { get; set; }
-
-        //[Column("unidad_id")]
-        //public Unidad Unidad { get; set; }
-        //[Column("categoria_id")]
-        //public Categoria Categoria { get; set; } 
     }
 }

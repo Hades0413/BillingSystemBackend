@@ -42,5 +42,10 @@ namespace BillingSystemBackend.Services
         {
             return await _context.Usuarios.FindAsync(id);
         }
+        
+        public async Task<Usuario> ObtenerUsuarioConCorreoAsync(string correo)
+        {
+            return await _context.Usuarios.FirstOrDefaultAsync(u => u.UsuarioCorreo == correo);
+        }
     }
 }

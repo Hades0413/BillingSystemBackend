@@ -1,6 +1,7 @@
 using BillingSystemBackend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BillingSystemBackend.Data;
 
@@ -51,5 +52,9 @@ namespace BillingSystemBackend.Services
             return (empresaId, mensaje);
         }
 
+        public async Task<List<Empresa>> ListarEmpresasPorUsuarioIdAsync(int usuarioId)
+        {
+            return await _context.ListarEmpresasPorUsuarioIdAsync(usuarioId);
+        }
     }
 }

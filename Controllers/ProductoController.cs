@@ -50,7 +50,6 @@ namespace BillingSystemBackend.Controllers
             }
         }
         
-        // Método para listar productos por ID de usuario
         [HttpGet("listar/{usuarioId}")]
         public async Task<IActionResult> ListarProductos(int usuarioId)
         {

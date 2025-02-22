@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BillingSystemBackend.Models;
 using BillingSystemBackend.Services;
+using System.Threading.Tasks;
 
 namespace BillingSystemBackend.Controllers
 {
@@ -51,6 +52,18 @@ namespace BillingSystemBackend.Controllers
             if (usuario == null)
             {
                 return NotFound(new ErrorResponse("Usuario no encontrado.", "No se encontró un usuario con este ID."));
+            }
+            return Ok(new SuccessResponse("Usuario encontrado.", usuario));
+        }
+
+        [HttpGet("correo/{correo}")]
+        public async Task<IActionResult> ObtenerUsuarioConCorreo(string correo)
+        {
+            var usuario = await _usuarioService.ObtenerUsuarioConCorreoAsync(correo);
+
+            if (usuario == null)
+            {
+                return NotFound(new ErrorResponse("Usuario no encontrado.", "No se encontró un usuario con este correo."));
             }
             return Ok(new SuccessResponse("Usuario encontrado.", usuario));
         }

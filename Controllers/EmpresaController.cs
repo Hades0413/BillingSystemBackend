@@ -1,6 +1,7 @@
 using BillingSystemBackend.Models;
 using BillingSystemBackend.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace BillingSystemBackend.Controllers
 {
@@ -66,6 +67,30 @@ namespace BillingSystemBackend.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new ErrorResponse("Error interno al obtener la empresa.", ex.Message));
+            }
+        }
+
+        [HttpGet("listar/{usuarioId}")]
+        public async Task<IActionResult> ListarEmpresasPorUsuarioId(int usuarioId)
+        {
+            if (usuarioId <= 0)
+            {
+                return BadRequest(new ErrorResponse("El ID del usuario debe ser mayor a cero."));
+            }
+
+            try
+            {
+                var empresas = await _empresaService.ListarEmpresasPorUsuarioIdAsync(usuarioId);
+                if (empresas == null || !empresas.Any())
+                {
+                    return NotFound(new ErrorResponse("No se encontraron empresas para este usuario."));
+                }
+
+                return Ok(new SuccessResponse("Empresas encontradas.", empresas));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorResponse("Error al listar las empresas.", ex.Message));
             }
         }
     }
