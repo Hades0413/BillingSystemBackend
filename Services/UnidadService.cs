@@ -33,9 +33,7 @@ namespace BillingSystemBackend.Services
                 throw new Exception("Error al obtener las unidades.", ex);
             }
         }
-
-
-        // Método para registrar una nueva unidad
+        
         public async Task<(bool success, string mensaje, Unidad unidad)> RegistrarUnidadAsync(string unidadNombre)
         {
             try

@@ -74,5 +74,62 @@ namespace BillingSystemBackend.Controllers
                 return StatusCode(500, new ErrorResponse("Hubo un problema al listar los productos. Intente nuevamente.", ex.Message));
             }
         }
+        
+        
+        [HttpPut("editar/{productoId}")]
+        public async Task<IActionResult> Editar(int productoId, [FromBody] Producto producto)
+        {
+            if (productoId <= 0)
+            {
+                return BadRequest(new ErrorResponse("ID de producto inválido."));
+            }
+
+            if (producto == null)
+            {
+                return BadRequest(new ErrorResponse("El producto no puede ser nulo."));
+            }
+
+            try
+            {
+                var (success, mensaje) = await _productoService.EditarProductoAsync(productoId, producto);
+
+                if (!success)
+                {
+                    return BadRequest(new ErrorResponse(mensaje));
+                }
+
+                return Ok(new SuccessResponse(mensaje));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorResponse("Hubo un problema al editar el producto. Intente nuevamente.", ex.Message));
+            }
+        }
+        
+        [HttpDelete("eliminar/{productoId}")]
+        public async Task<IActionResult> Eliminar(int productoId)
+        {
+            if (productoId <= 0)
+            {
+                return BadRequest(new ErrorResponse("ID de producto inválido."));
+            }
+
+            try
+            {
+                var (success, mensaje) = await _productoService.EliminarProductoAsync(productoId);
+
+                if (!success)
+                {
+                    return BadRequest(new ErrorResponse(mensaje));
+                }
+
+                return Ok(new SuccessResponse(mensaje));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorResponse("Hubo un problema al eliminar el producto. Intente nuevamente.", ex.Message));
+            }
+        }
+
     }
 }

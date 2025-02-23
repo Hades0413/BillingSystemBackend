@@ -18,7 +18,6 @@ namespace BillingSystemBackend.Data
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Unidad> Unidades { get; set; }
         
-        // Método para listar productos por ID de usuario
         public async Task<List<Producto>> ListarProductosConUsuarioIdAsync(int usuarioId)
         {
             if (usuarioId <= 0)
@@ -142,6 +141,63 @@ namespace BillingSystemBackend.Data
             catch (Exception ex)
             {
                 throw new Exception($"Error al registrar el producto con código {productoCodigo}: {ex.Message}", ex);
+            }
+        }
+        
+        public async Task<(bool success, string mensaje)> EditarProductoAsync(
+            int productoId,
+            string productoCodigo,
+            string productoNombre,
+            int productoStock,
+            decimal productoPrecioVenta,
+            decimal? productoImpuestoIgv,
+            int unidadId,
+            int categoriaId,
+            string productoImagen)
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@producto_id", SqlDbType.Int) { Value = productoId },
+                new SqlParameter("@producto_codigo", SqlDbType.NVarChar, 50) { Value = productoCodigo ?? (object)DBNull.Value },
+                new SqlParameter("@producto_nombre", SqlDbType.NVarChar, 255) { Value = productoNombre ?? (object)DBNull.Value },
+                new SqlParameter("@producto_stock", SqlDbType.Int) { Value = productoStock },
+                new SqlParameter("@producto_precio_venta", SqlDbType.Decimal) { Value = productoPrecioVenta },
+                new SqlParameter("@producto_impuesto_igv", SqlDbType.Decimal) { Value = productoImpuestoIgv ?? (object)DBNull.Value },
+                new SqlParameter("@unidad_id", SqlDbType.Int) { Value = unidadId },
+                new SqlParameter("@categoria_id", SqlDbType.Int) { Value = categoriaId },
+                new SqlParameter("@producto_imagen", SqlDbType.NVarChar, 500) { Value = string.IsNullOrEmpty(productoImagen) ? DBNull.Value : (object)productoImagen }
+            };
+
+            try
+            {
+                var result = await Database.ExecuteSqlRawAsync(
+                    "EXEC dbo.EditarProducto @producto_id, @producto_codigo, @producto_nombre, @producto_stock, @producto_precio_venta, @producto_impuesto_igv, @unidad_id, @categoria_id, @producto_imagen",
+                    parameters);
+
+                return (result > 0, result > 0 ? "Producto actualizado exitosamente." : "No se pudo actualizar el producto.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error al editar el producto: {ex.Message}");
+            }
+        }
+        public async Task<int> EliminarProductoAsync(int productoId)
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@producto_id", SqlDbType.Int) { Value = productoId }
+            };
+
+            try
+            {
+                var result = await Database.ExecuteSqlRawAsync(
+                    "EXEC dbo.EliminarProducto @producto_id", parameters);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al eliminar el producto.", ex);
             }
         }
     }
