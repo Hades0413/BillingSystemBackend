@@ -13,6 +13,7 @@ namespace BillingSystemBackend.Data
         }
 
         public DbSet<Categoria> Categorias { get; set; }
+        public DbSet<Producto> Productos { get; set; }
 
         public async Task<List<Categoria>> ListarCategoriasConUsuarioIdAsync(int usuarioId)
         {
@@ -88,5 +89,59 @@ namespace BillingSystemBackend.Data
                 }
             }
         }
+        
+        public async Task<bool> EditarCategoriaAsync(int categoriaId, string categoriaNombre)
+        {
+            if (categoriaId <= 0 || string.IsNullOrWhiteSpace(categoriaNombre))
+                throw new ArgumentException("El ID de la categoría o el nombre no pueden ser nulos o vacíos.", nameof(categoriaId));
+
+            var parameters = new[]
+            {
+                new SqlParameter("@categoria_id", categoriaId),
+                new SqlParameter("@categoria_nombre", SqlDbType.NVarChar, 255) { Value = categoriaNombre },
+                new SqlParameter("@mensaje", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output }
+            };
+
+            try
+            {
+                await Database.ExecuteSqlRawAsync(
+                    "EXEC dbo.EditarCategoria @categoria_id, @categoria_nombre, @mensaje OUTPUT",
+                    parameters);
+
+                var mensaje = parameters[2].Value.ToString();
+                return !string.IsNullOrEmpty(mensaje);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error al editar la categoría.", ex);
+            }
+        }
+        public async Task<int> EliminarCategoriaAsync(int categoriaId)
+        {
+            var productosAsociados = await Productos
+                .Where(p => p.CategoriaId == categoriaId)
+                .AnyAsync();
+
+            if (productosAsociados)
+            {
+                return 0;
+            }
+
+            var parametro = new SqlParameter("@categoria_id", categoriaId);
+
+            try
+            {
+                var filasAfectadas = await Database.ExecuteSqlRawAsync("EXEC EliminarCategoria @categoria_id", parametro);
+
+                return filasAfectadas;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error al eliminar la categoría.", ex);
+            }
+        }
+
+
+
     }
 }

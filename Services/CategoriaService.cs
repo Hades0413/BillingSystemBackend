@@ -15,7 +15,6 @@ namespace BillingSystemBackend.Services
             _categoriaDbContext = categoriaDbContext;
         }
 
-        // Método para listar las categorías de un usuario
         public async Task<List<Categoria>> ListarCategoriasConUsuarioIdAsync(int usuarioId)
         {
             try
@@ -28,7 +27,6 @@ namespace BillingSystemBackend.Services
             }
         }
 
-        // Obtener una categoría por su ID
         public async Task<Categoria> ObtenerCategoriaPorIdAsync(int id)
         {
             try
@@ -41,7 +39,6 @@ namespace BillingSystemBackend.Services
             }
         }
 
-        // Método para registrar una nueva categoría
         public async Task<(bool success, string mensaje, Categoria categoria)> RegistrarCategoriaAsync(int usuarioId, string categoriaNombre)
         {
             try
@@ -68,5 +65,50 @@ namespace BillingSystemBackend.Services
                 throw new Exception("Error al registrar la categoría.", ex);
             }
         }
+        
+        public async Task<(bool success, string message, Categoria categoria)> EditarCategoriaAsync(int categoriaId, Categoria categoria)
+        {
+            try
+            {
+                var categoriaExistente = await _categoriaDbContext.ObtenerCategoriaPorIdAsync(categoriaId);
+
+                if (categoriaExistente == null)
+                {
+                    return (false, "La categoría no existe.", null);
+                }
+
+                categoriaExistente.CategoriaNombre = categoria.CategoriaNombre;
+                categoriaExistente.CategoriaFechaUltimaActualizacion = DateTime.Now;
+
+                _categoriaDbContext.Update(categoriaExistente);
+                await _categoriaDbContext.SaveChangesAsync();
+
+                return (true, "Categoría actualizada exitosamente.", categoriaExistente);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error al actualizar la categoría.", ex);
+            }
+        }
+        
+        public async Task<(bool success, string message)> EliminarCategoriaAsync(int categoriaId)
+        {
+            try
+            {
+                var filasAfectadas = await _categoriaDbContext.EliminarCategoriaAsync(categoriaId);
+
+                if (filasAfectadas == 0)
+                {
+                    return (false, "La categoría tiene productos asociados y no se puede eliminar.");
+                }
+
+                return (true, "Categoría eliminada exitosamente.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error al eliminar la categoría: {ex.Message}");
+            }
+        }
+
     }
 }

@@ -18,7 +18,7 @@ namespace BillingSystemBackend.Controllers
             _categoriaService = categoriaService ?? throw new ArgumentNullException(nameof(categoriaService));
         }
 
-        [HttpGet("listar-categorias")]
+        [HttpGet("listar")]
         public async Task<IActionResult> ListarCategoriasConUsuarioId([FromQuery] int usuarioId)
         {
 
@@ -68,5 +68,62 @@ namespace BillingSystemBackend.Controllers
                 return StatusCode(500, new ErrorResponse("Error al registrar la categoría.", ex.Message));
             }
         }
+        
+        [HttpPut("editar/{categoriaId}")]
+        public async Task<IActionResult> Editar(int categoriaId, [FromBody] Categoria categoria)
+        {
+            if (categoriaId <= 0)
+            {
+                return BadRequest(new ErrorResponse("ID de categoría inválido."));
+            }
+
+            if (categoria == null || string.IsNullOrWhiteSpace(categoria.CategoriaNombre))
+            {
+                return BadRequest(new ErrorResponse("El nombre de la categoría no puede estar vacío."));
+            }
+
+            try
+            {
+                var result = await _categoriaService.EditarCategoriaAsync(categoriaId, categoria);
+
+                if (!result.success)
+                {
+                    return BadRequest(new ErrorResponse(result.message));
+                }
+
+                return Ok(new SuccessResponse("Categoría editada exitosamente.", result.categoria));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorResponse("Error al editar la categoría.", ex.Message));
+            }
+        }
+        
+        
+        [HttpDelete("eliminar/{categoriaId}")]
+        public async Task<IActionResult> Eliminar(int categoriaId)
+        {
+            if (categoriaId <= 0)
+            {
+                return BadRequest(new ErrorResponse("ID de categoría inválido."));
+            }
+
+            try
+            {
+                var result = await _categoriaService.EliminarCategoriaAsync(categoriaId);
+
+                if (!result.success)
+                {
+                    return BadRequest(new ErrorResponse(result.message));
+                }
+
+                return Ok(new SuccessResponse(result.message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorResponse("Error al eliminar la categoría.", ex.Message));
+            }
+        }
+
     }
 }

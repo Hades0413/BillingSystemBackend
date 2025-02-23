@@ -29,6 +29,9 @@ builder.Services.AddDbContext<RubroDbContext>(options =>
 builder.Services.AddDbContext<EmpresaDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
 
+builder.Services.AddDbContext<UnidadDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
+
 builder.Services.AddDbContext<CategoriaDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
 
@@ -39,12 +42,14 @@ builder.Services.AddDbContext<ProductoDbContext>(options =>
 builder.Services.AddScoped<UsuarioDbContext>();
 builder.Services.AddScoped<RubroDbContext>();
 builder.Services.AddScoped<EmpresaDbContext>();
+builder.Services.AddScoped<UnidadDbContext>();
 builder.Services.AddScoped<CategoriaDbContext>();
 builder.Services.AddScoped<ProductoDbContext>();
 
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<RubroService>();
 builder.Services.AddScoped<EmpresaService>();
+builder.Services.AddScoped<UnidadService>();
 builder.Services.AddScoped<CategoriaService>();
 builder.Services.AddScoped<ProductoService>();
 
