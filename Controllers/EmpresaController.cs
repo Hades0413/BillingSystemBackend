@@ -93,5 +93,32 @@ namespace BillingSystemBackend.Controllers
                 return StatusCode(500, new ErrorResponse("Error al listar las empresas.", ex.Message));
             }
         }
+        [HttpGet("listar-por-ruc/{ruc}")]
+        public async Task<IActionResult> ListarPorRuc(string ruc)
+        {
+            if (string.IsNullOrWhiteSpace(ruc))
+            {
+                return BadRequest(new ErrorResponse("El RUC es obligatorio."));
+            }
+
+            try
+            {
+                var empresas = await _empresaService.ListarEmpresasPorRucAsync(ruc);
+                if (empresas == null || empresas.Count == 0)
+                {
+                    return NotFound(new ErrorResponse("No se encontraron empresas con el RUC proporcionado."));
+                }
+
+                return Ok(empresas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorResponse("Error interno del servidor al listar empresas por RUC.", ex.Message));
+            }
+        }
+
+        
+
+        
     }
 }

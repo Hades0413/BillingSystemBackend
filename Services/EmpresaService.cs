@@ -56,5 +56,17 @@ namespace BillingSystemBackend.Services
         {
             return await _context.ListarEmpresasPorUsuarioIdAsync(usuarioId);
         }
+        
+        public async Task<List<Empresa>> ListarEmpresasPorRucAsync(string ruc)
+        {
+            if (string.IsNullOrWhiteSpace(ruc))
+            {
+                throw new ArgumentException("El RUC no puede estar vacío.", nameof(ruc));
+            }
+
+            return await _context.ListarEmpresasPorRucAsync(ruc);
+        }
+
+        
     }
 }

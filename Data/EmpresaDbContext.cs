@@ -57,5 +57,19 @@ namespace BillingSystemBackend.Data
                 throw new Exception("Error al ejecutar el procedimiento almacenado para listar las empresas.", ex);
             }
         }
+        
+        public async Task<List<Empresa>> ListarEmpresasPorRucAsync(string ruc)
+        {
+            try
+            {
+                var sqlParams = new SqlParameter("@empresa_ruc", SqlDbType.NVarChar, 20) { Value = ruc };
+                return await Empresas.FromSqlRaw("EXEC dbo.ListarEmpresasPorRUC @empresa_ruc", sqlParams).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al ejecutar el procedimiento almacenado para listar las empresas por RUC.", ex);
+            }
+        }
+        
     }
 }
