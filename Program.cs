@@ -38,6 +38,9 @@ builder.Services.AddDbContext<CategoriaDbContext>(options =>
 builder.Services.AddDbContext<ProductoDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
 
+builder.Services.AddDbContext<TipoComprobanteDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
+
 
 builder.Services.AddScoped<UsuarioDbContext>();
 builder.Services.AddScoped<RubroDbContext>();
@@ -45,6 +48,7 @@ builder.Services.AddScoped<EmpresaDbContext>();
 builder.Services.AddScoped<UnidadDbContext>();
 builder.Services.AddScoped<CategoriaDbContext>();
 builder.Services.AddScoped<ProductoDbContext>();
+builder.Services.AddScoped<TipoComprobanteDbContext>();
 
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<RubroService>();
@@ -52,6 +56,7 @@ builder.Services.AddScoped<EmpresaService>();
 builder.Services.AddScoped<UnidadService>();
 builder.Services.AddScoped<CategoriaService>();
 builder.Services.AddScoped<ProductoService>();
+builder.Services.AddScoped<TipoComprobanteService>();
 
 builder.Services.AddControllersWithViews();
 
