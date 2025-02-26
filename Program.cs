@@ -1,15 +1,18 @@
-using Microsoft.EntityFrameworkCore;
+using BillingSystemBackend.Data;
 using BillingSystemBackend.Models;
 using BillingSystemBackend.Services;
-using BillingSystemBackend.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(8080); 
-});
+// Configuración de Kestrel
+builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(8080); });
 
+// Configuración de CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
@@ -41,11 +44,10 @@ builder.Services.AddDbContext<ProductoDbContext>(options =>
 builder.Services.AddDbContext<TipoComprobanteDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
 
-
 builder.Services.AddDbContext<ClienteDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
 
-
+// Registro de servicios
 builder.Services.AddScoped<UsuarioDbContext>();
 builder.Services.AddScoped<RubroDbContext>();
 builder.Services.AddScoped<EmpresaDbContext>();
@@ -65,21 +67,70 @@ builder.Services.AddScoped<TipoComprobanteService>();
 builder.Services.AddScoped<ClienteService>();
 builder.Services.AddScoped<TipoClienteService>();
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"] ?? string.Empty)) 
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    
+});
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Habilitar CORS
 app.UseCors("AllowAngularApp");
 
-// Configuración de enrutamiento y autorización
-//app.UseHttpsRedirection();
 app.UseRouting();
+app.UseAuthentication(); 
 app.UseAuthorization();
 
-// Configuración de las rutas por defecto
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Usuario}/{action=Registrar}/{id?}");
+    "default",
+    "{controller=Usuario}/{action=Registrar}/{id?}");
 
 app.Run();

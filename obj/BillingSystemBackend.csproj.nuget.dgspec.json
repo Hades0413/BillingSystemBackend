@@ -68,18 +68,6 @@
               "target": "Package",
               "version": "[2.3.0, )"
             },
-            "Microsoft.AspNetCore.OpenApi": {
-              "target": "Package",
-              "version": "[9.0.2, )"
-            },
-            "Microsoft.Azure.WebJobs.Extensions.OpenApi.Configuration.AppSettings": {
-              "target": "Package",
-              "version": "[2.0.0-preview2, )"
-            },
-            "Microsoft.Azure.WebJobs.Extensions.OpenApi.Core": {
-              "target": "Package",
-              "version": "[2.0.0-preview2, )"
-            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[9.0.2, )"
@@ -109,22 +97,6 @@
             "Microsoft.IdentityModel.JsonWebTokens": {
               "target": "Package",
               "version": "[8.6.0, )"
-            },
-            "Microsoft.OpenApi": {
-              "target": "Package",
-              "version": "[2.0.0-preview9, )"
-            },
-            "Microsoft.OpenApi.Readers": {
-              "target": "Package",
-              "version": "[2.0.0-preview9, )"
-            },
-            "Options": {
-              "target": "Package",
-              "version": "[0.31415.9, )"
-            },
-            "SwaggerUI.OpenApi": {
-              "target": "Package",
-              "version": "[1.0.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",

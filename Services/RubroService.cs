@@ -1,68 +1,61 @@
 using BillingSystemBackend.Data;
 using BillingSystemBackend.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 
-namespace BillingSystemBackend.Services
+namespace BillingSystemBackend.Services;
+
+public class RubroService
 {
-    public class RubroService
+    private readonly RubroDbContext _rubroDbContext;
+
+    public RubroService(RubroDbContext rubroDbContext)
     {
-        private readonly RubroDbContext _rubroDbContext;
+        _rubroDbContext = rubroDbContext;
+    }
 
-        public RubroService(RubroDbContext rubroDbContext)
+    public async Task<List<Rubro>> ObtenerRubrosAsync()
+    {
+        try
         {
-            _rubroDbContext = rubroDbContext;
+            return await _rubroDbContext.ObtenerRubrosAsync();
         }
-
-        public async Task<List<Rubro>> ObtenerRubrosAsync()
+        catch (Exception ex)
         {
-            try
-            {
-                return await _rubroDbContext.ObtenerRubrosAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al obtener los rubros.", ex);
-            }
+            throw new Exception("Error al obtener los rubros.", ex);
         }
+    }
 
-        public async Task<Rubro> ObtenerRubroPorIdAsync(int id)
+    public async Task<Rubro> ObtenerRubroPorIdAsync(int id)
+    {
+        try
         {
-            try
-            {
-                return await _rubroDbContext.ObtenerRubroPorIdAsync(id);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al obtener el rubro.", ex);
-            }
+            return await _rubroDbContext.ObtenerRubroPorIdAsync(id);
         }
-
-        public async Task<(bool success, string mensaje, Rubro rubro)> RegistrarRubroAsync(string rubroNombre)
+        catch (Exception ex)
         {
-            try
+            throw new Exception("Error al obtener el rubro.", ex);
+        }
+    }
+
+    public async Task<(bool success, string mensaje, Rubro rubro)> RegistrarRubroAsync(string rubroNombre)
+    {
+        try
+        {
+            var (success, rubroId, errorMessage) = await _rubroDbContext.RegistrarRubroAsync(rubroNombre);
+
+            if (!success) return (false, errorMessage, null);
+
+            var rubro = new Rubro
             {
-                var (success, rubroId, errorMessage) = await _rubroDbContext.RegistrarRubroAsync(rubroNombre);
+                RubroId = rubroId,
+                RubroNombre = rubroNombre,
+                RubroFechaUltimaActualizacion = DateTime.Now
+            };
 
-                if (!success)
-                {
-                    return (false, errorMessage, null);
-                }
-
-                var rubro = new Rubro
-                {
-                    RubroId = rubroId,
-                    RubroNombre = rubroNombre,
-                    RubroFechaUltimaActualizacion = DateTime.Now
-                };
-
-                return (true, "Rubro registrado exitosamente.", rubro);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al registrar el rubro.", ex);
-            }
+            return (true, "Rubro registrado exitosamente.", rubro);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al registrar el rubro.", ex);
         }
     }
 }

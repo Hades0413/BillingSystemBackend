@@ -1,30 +1,28 @@
 using BillingSystemBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BillingSystemBackend.Controllers
+namespace BillingSystemBackend.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize]
+public class TipoComprobanteController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class TipoComprobanteController : ControllerBase
+    private readonly TipoComprobanteService _tipoComprobanteService;
+
+    public TipoComprobanteController(TipoComprobanteService tipoComprobanteService)
     {
-        private readonly TipoComprobanteService _tipoComprobanteService;
+        _tipoComprobanteService = tipoComprobanteService;
+    }
 
-        public TipoComprobanteController(TipoComprobanteService tipoComprobanteService)
-        {
-            _tipoComprobanteService = tipoComprobanteService;
-        }
+    [HttpGet("listar")]
+    public async Task<IActionResult> ListarTipoComprobantes()
+    {
+        var resultado = await _tipoComprobanteService.ObtenerTipoComprobantesAsync();
 
-        [HttpGet("listar")]
-        public async Task<IActionResult> ListarTipoComprobantes()
-        {
-            var resultado = await _tipoComprobanteService.ObtenerTipoComprobantesAsync();
+        if (!resultado.Success) return BadRequest(new { message = resultado.Message });
 
-            if (!resultado.Success)
-            {
-                return BadRequest(new { message = resultado.Message });
-            }
-
-            return Ok(new { message = resultado.Message, data = resultado.Data });
-        }
+        return Ok(resultado.Data);
     }
 }

@@ -2,34 +2,31 @@ using BillingSystemBackend.Data;
 using BillingSystemBackend.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BillingSystemBackend.Services
+namespace BillingSystemBackend.Services;
+
+public class TipoComprobanteService
 {
-    public class TipoComprobanteService
+    private readonly TipoComprobanteDbContext _dbContext;
+
+    public TipoComprobanteService(TipoComprobanteDbContext dbContext)
     {
-        private readonly TipoComprobanteDbContext _dbContext;
+        _dbContext = dbContext;
+    }
 
-        public TipoComprobanteService(TipoComprobanteDbContext dbContext)
+    public async Task<(bool Success, List<TipoComprobante> Data, string Message)> ObtenerTipoComprobantesAsync()
+    {
+        try
         {
-            _dbContext = dbContext;
+            var tipoComprobantes = await _dbContext.TipoComprobantes.ToListAsync();
+
+            if (tipoComprobantes == null || tipoComprobantes.Count == 0)
+                return (false, null, "No se encontraron tipos de comprobante.");
+
+            return (true, tipoComprobantes, "Tipos de comprobante obtenidos con éxito.");
         }
-
-        public async Task<(bool Success, List<TipoComprobante> Data, string Message)> ObtenerTipoComprobantesAsync()
+        catch (Exception ex)
         {
-            try
-            {
-                var tipoComprobantes = await _dbContext.TipoComprobantes.ToListAsync();
-                
-                if (tipoComprobantes == null || tipoComprobantes.Count == 0)
-                {
-                    return (false, null, "No se encontraron tipos de comprobante.");
-                }
-
-                return (true, tipoComprobantes, "Tipos de comprobante obtenidos con éxito.");
-            }
-            catch (Exception ex)
-            {
-                return (false, null, $"Ocurrió un error inesperado: {ex.Message}");
-            }
+            return (false, null, $"Ocurrió un error inesperado: {ex.Message}");
         }
     }
 }

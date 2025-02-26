@@ -1,64 +1,57 @@
 using BillingSystemBackend.Models;
 using BillingSystemBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
-namespace BillingSystemBackend.Controllers
+namespace BillingSystemBackend.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize] 
+public class RubroController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class RubroController : ControllerBase
+    private readonly RubroService _rubroService;
+
+    public RubroController(RubroService rubroService)
     {
-        private readonly RubroService _rubroService;
+        _rubroService = rubroService ??
+                        throw new ArgumentNullException(nameof(rubroService),
+                            "El servicio de rubros no puede ser nulo.");
+    }
 
-        public RubroController(RubroService rubroService)
+    [HttpGet("listar")]
+    public async Task<ActionResult<List<Rubro>>> ObtenerRubros()
+    {
+        try
         {
-            _rubroService = rubroService ?? throw new ArgumentNullException(nameof(rubroService), "El servicio de rubros no puede ser nulo.");
+            var rubros = await _rubroService.ObtenerRubrosAsync();
+            return Ok(rubros);
         }
-
-        [HttpGet("listar")]
-        public async Task<ActionResult<List<Rubro>>> ObtenerRubros()
+        catch (Exception ex)
         {
-            try
-            {
-                var rubros = await _rubroService.ObtenerRubrosAsync();
-                return Ok(rubros);
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, new { mensaje = "Error al obtener los rubros", error = ex.Message });
-            }
+            return StatusCode(500, new { mensaje = "Error al obtener los rubros", error = ex.Message });
         }
+    }
 
-        [HttpPost("registrar")]
-        public async Task<IActionResult> Registrar([FromBody] Rubro rubro)
+    [HttpPost("registrar")]
+    public async Task<IActionResult> Registrar([FromBody] Rubro rubro)
+    {
+        if (rubro == null) return BadRequest(new ErrorResponse("El rubro no puede ser nulo."));
+
+        if (string.IsNullOrEmpty(rubro.RubroNombre))
+            return BadRequest(new ErrorResponse("El nombre del rubro no puede estar vacío."));
+
+        try
         {
-            if (rubro == null)
-            {
-                return BadRequest(new ErrorResponse("El rubro no puede ser nulo."));
-            }
+            var (success, mensaje, rubroRegistrado) = await _rubroService.RegistrarRubroAsync(rubro.RubroNombre);
 
-            if (string.IsNullOrEmpty(rubro.RubroNombre))
-            {
-                return BadRequest(new ErrorResponse("El nombre del rubro no puede estar vacío."));
-            }
+            if (!success) return BadRequest(new ErrorResponse(mensaje));
 
-            try
-            {
-                var (success, mensaje, rubroRegistrado) = await _rubroService.RegistrarRubroAsync(rubro.RubroNombre);
-
-                if (!success)
-                {
-                    return BadRequest(new ErrorResponse(mensaje));
-                }
-
-                return Ok(new SuccessResponse(mensaje, rubroRegistrado));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ErrorResponse("Error al registrar el rubro.", ex.Message));
-            }
+            return Ok(new SuccessResponse(mensaje, rubroRegistrado));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ErrorResponse("Error al registrar el rubro.", ex.Message));
         }
     }
 }

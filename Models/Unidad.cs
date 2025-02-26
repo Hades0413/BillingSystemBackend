@@ -5,9 +5,7 @@ namespace BillingSystemBackend.Models;
 
 public class Unidad
 {
-    [Key]
-    [Column("unidad_id")]
-    public int UnidadId { get; set; }
+    [Key] [Column("unidad_id")] public int UnidadId { get; set; }
 
     [Column("unidad_nombre")]
     [Required]
@@ -16,5 +14,4 @@ public class Unidad
 
     [Column("unidad_fecha_ultima_actualizacion")]
     public DateTime UnidadFechaUltimaActualizacion { get; set; } = DateTime.Now;
-
 }

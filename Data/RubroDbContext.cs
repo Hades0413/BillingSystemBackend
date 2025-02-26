@@ -1,94 +1,91 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient;
-using System;
 using System.Data;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using BillingSystemBackend.Models;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
-namespace BillingSystemBackend.Data
+namespace BillingSystemBackend.Data;
+
+public class RubroDbContext : DbContext
 {
-    public class RubroDbContext : DbContext
+    public RubroDbContext(DbContextOptions<RubroDbContext> options)
+        : base(options)
     {
-        public RubroDbContext(DbContextOptions<RubroDbContext> options)
-            : base(options)
+    }
+
+    public DbSet<Rubro> Rubros { get; set; }
+
+    public async Task<List<Rubro>> ObtenerRubrosAsync()
+    {
+        try
         {
+            return await Rubros.AsNoTracking().ToListAsync();
         }
-
-        public DbSet<Rubro> Rubros { get; set; }
-
-        public async Task<List<Rubro>> ObtenerRubrosAsync()
+        catch (Exception ex)
         {
-            try
-            {
-                return await Rubros.AsNoTracking().ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al obtener los rubros.", ex);
-            }
+            throw new Exception("Error al obtener los rubros.", ex);
         }
+    }
 
-        public async Task<Rubro> ObtenerRubroPorIdAsync(int id)
+    public async Task<Rubro> ObtenerRubroPorIdAsync(int id)
+    {
+        if (id <= 0)
+            throw new ArgumentException("El ID del rubro debe ser mayor a cero.", nameof(id));
+
+        try
         {
-            if (id <= 0)
-                throw new ArgumentException("El ID del rubro debe ser mayor a cero.", nameof(id));
-
-            try
-            {
-                return await Rubros.AsNoTracking().FirstOrDefaultAsync(r => r.RubroId == id);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al obtener el rubro con ID {id}.", ex);
-            }
+            return await Rubros.AsNoTracking().FirstOrDefaultAsync(r => r.RubroId == id);
         }
-
-        public async Task<(bool success, int rubroId, string mensaje)> RegistrarRubroAsync(string rubroNombre)
+        catch (Exception ex)
         {
-            if (string.IsNullOrEmpty(rubroNombre))
-                throw new ArgumentException("El nombre del rubro no puede ser vacío.", nameof(rubroNombre));
+            throw new Exception($"Error al obtener el rubro con ID {id}.", ex);
+        }
+    }
 
-            try
+    public async Task<(bool success, int rubroId, string mensaje)> RegistrarRubroAsync(string rubroNombre)
+    {
+        if (string.IsNullOrEmpty(rubroNombre))
+            throw new ArgumentException("El nombre del rubro no puede ser vacío.", nameof(rubroNombre));
+
+        try
+        {
+            var rubroIdParam = new SqlParameter("@rubroId", SqlDbType.Int)
             {
-                var rubroIdParam = new SqlParameter("@rubroId", SqlDbType.Int)
+                Direction = ParameterDirection.Output
+            };
+
+            var mensajeParam = new SqlParameter("@mensaje", SqlDbType.NVarChar, 255)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            using (var transaction = await Database.BeginTransactionAsync())
+            {
+                try
                 {
-                    Direction = ParameterDirection.Output
-                };
+                    await Database.ExecuteSqlRawAsync(
+                        "EXEC dbo.InsertarRubro @rubro_nombre = {0}, @rubroId = @rubroId OUTPUT, @mensaje = @mensaje OUTPUT",
+                        rubroNombre, rubroIdParam, mensajeParam);
 
-                var mensajeParam = new SqlParameter("@mensaje", SqlDbType.NVarChar, 255)
+                    var rubroId = (int)rubroIdParam.Value;
+                    var mensaje = (string)mensajeParam.Value;
+
+                    await transaction.CommitAsync();
+
+                    return rubroId > 0
+                        ? (true, rubroId, mensaje)
+                        : (false, rubroId, mensaje);
+                }
+                catch (Exception ex)
                 {
-                    Direction = ParameterDirection.Output
-                };
-
-                using (var transaction = await Database.BeginTransactionAsync())
-                {
-                    try
-                    {
-                        await Database.ExecuteSqlRawAsync(
-                            "EXEC dbo.InsertarRubro @rubro_nombre = {0}, @rubroId = @rubroId OUTPUT, @mensaje = @mensaje OUTPUT",
-                            rubroNombre, rubroIdParam, mensajeParam);
-
-                        int rubroId = (int)rubroIdParam.Value;
-                        string mensaje = (string)mensajeParam.Value;
-
-                        await transaction.CommitAsync();
-
-                        return rubroId > 0
-                            ? (true, rubroId, mensaje)
-                            : (false, rubroId, mensaje);
-                    }
-                    catch (Exception ex)
-                    {
-                        await transaction.RollbackAsync();
-                        throw new InvalidOperationException("Error al registrar el rubro, la transacción fue revertida.", ex);
-                    }
+                    await transaction.RollbackAsync();
+                    throw new InvalidOperationException("Error al registrar el rubro, la transacción fue revertida.",
+                        ex);
                 }
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al ejecutar el procedimiento almacenado para registrar el rubro.", ex);
-            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al ejecutar el procedimiento almacenado para registrar el rubro.", ex);
         }
     }
 }

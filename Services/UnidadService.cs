@@ -1,63 +1,53 @@
 using BillingSystemBackend.Data;
 using BillingSystemBackend.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace BillingSystemBackend.Services
+namespace BillingSystemBackend.Services;
+
+public class UnidadService
 {
-    public class UnidadService
+    private readonly UnidadDbContext _unidadDbContext;
+
+    public UnidadService(UnidadDbContext unidadDbContext)
     {
-        private readonly UnidadDbContext _unidadDbContext;
+        _unidadDbContext = unidadDbContext;
+    }
 
-        public UnidadService(UnidadDbContext unidadDbContext)
+    public async Task<(List<Unidad> unidades, string mensaje, bool success)> ListarUnidadesAsync()
+    {
+        try
         {
-            _unidadDbContext = unidadDbContext;
+            var (unidades, mensaje, success) = await _unidadDbContext.ListarUnidadesAsync();
+
+            if (!success) throw new Exception(mensaje);
+
+            return (unidades, mensaje, success);
         }
-
-        public async Task<(List<Unidad> unidades, string mensaje, bool success)> ListarUnidadesAsync()
+        catch (Exception ex)
         {
-            try
-            {
-                var (unidades, mensaje, success) = await _unidadDbContext.ListarUnidadesAsync();
-
-                if (!success)
-                {
-                    throw new Exception(mensaje);
-                }
-
-                return (unidades, mensaje, success);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al obtener las unidades.", ex);
-            }
+            throw new Exception("Error al obtener las unidades.", ex);
         }
-        
-        public async Task<(bool success, string mensaje, Unidad unidad)> RegistrarUnidadAsync(string unidadNombre)
+    }
+
+    public async Task<(bool success, string mensaje, Unidad unidad)> RegistrarUnidadAsync(string unidadNombre)
+    {
+        try
         {
-            try
+            var (success, unidadId, mensaje) = await _unidadDbContext.RegistrarUnidadAsync(unidadNombre);
+
+            if (!success) return (false, mensaje, null);
+
+            var unidad = new Unidad
             {
-                var (success, unidadId, mensaje) = await _unidadDbContext.RegistrarUnidadAsync(unidadNombre);
+                UnidadId = unidadId,
+                UnidadNombre = unidadNombre,
+                UnidadFechaUltimaActualizacion = DateTime.Now
+            };
 
-                if (!success)
-                {
-                    return (false, mensaje, null);
-                }
-
-                var unidad = new Unidad
-                {
-                    UnidadId = unidadId,
-                    UnidadNombre = unidadNombre,
-                    UnidadFechaUltimaActualizacion = DateTime.Now
-                };
-
-                return (true, "Unidad registrada exitosamente.", unidad);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al registrar la unidad.", ex);
-            }
+            return (true, "Unidad registrada exitosamente.", unidad);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al registrar la unidad.", ex);
         }
     }
 }

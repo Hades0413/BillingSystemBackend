@@ -1,66 +1,56 @@
-using BillingSystemBackend.Services;
 using BillingSystemBackend.Models;
+using BillingSystemBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace BillingSystemBackend.Controllers
+namespace BillingSystemBackend.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize] 
+public class UnidadController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UnidadController : ControllerBase
+    private readonly UnidadService _unidadService;
+
+    public UnidadController(UnidadService unidadService)
     {
-        private readonly UnidadService _unidadService;
+        _unidadService = unidadService ?? throw new ArgumentNullException(nameof(unidadService));
+    }
 
-        public UnidadController(UnidadService unidadService)
+    [HttpGet("listar")]
+    public async Task<IActionResult> ListarUnidades()
+    {
+        try
         {
-            _unidadService = unidadService ?? throw new ArgumentNullException(nameof(unidadService));
+            var (unidades, mensaje, success) = await _unidadService.ListarUnidadesAsync();
+
+            if (!success || unidades == null || unidades.Count == 0) return NotFound(new { mensaje });
+
+            return Ok(new { mensaje, unidades });
         }
-
-        [HttpGet("listar")]
-        public async Task<IActionResult> ListarUnidades()
+        catch (Exception ex)
         {
-            try
-            {
-                var (unidades, mensaje, success) = await _unidadService.ListarUnidadesAsync();
-
-                if (!success || unidades == null || unidades.Count == 0)
-                {
-                    return NotFound(new { mensaje = mensaje });
-                }
-
-                return Ok(new { mensaje = mensaje, unidades });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = "Error al obtener las unidades.", detalle = ex.Message });
-            }
+            return StatusCode(500, new { mensaje = "Error al obtener las unidades.", detalle = ex.Message });
         }
+    }
 
 
-        [HttpPost("registrar")]
-        public async Task<IActionResult> Registrar([FromBody] Unidad unidad)
+    [HttpPost("registrar")]
+    public async Task<IActionResult> Registrar([FromBody] Unidad unidad)
+    {
+        if (unidad == null || string.IsNullOrEmpty(unidad.UnidadNombre))
+            return BadRequest(new { mensaje = "El nombre de la unidad no puede ser nulo o vacío." });
+
+        try
         {
-            if (unidad == null || string.IsNullOrEmpty(unidad.UnidadNombre))
-            {
-                return BadRequest(new { mensaje = "El nombre de la unidad no puede ser nulo o vacío." });
-            }
+            var (success, mensaje, unidadRegistrada) = await _unidadService.RegistrarUnidadAsync(unidad.UnidadNombre);
+            if (!success) return BadRequest(new { mensaje });
 
-            try
-            {
-                var (success, mensaje, unidadRegistrada) = await _unidadService.RegistrarUnidadAsync(unidad.UnidadNombre);
-                if (!success)
-                {
-                    return BadRequest(new { mensaje });
-                }
-
-                return CreatedAtAction(nameof(ListarUnidades), new { }, new { mensaje, unidad = unidadRegistrada });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { mensaje = "Error al registrar la unidad.", detalle = ex.Message });
-            }
+            return CreatedAtAction(nameof(ListarUnidades), new { }, new { mensaje, unidad = unidadRegistrada });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { mensaje = "Error al registrar la unidad.", detalle = ex.Message });
         }
     }
 }
