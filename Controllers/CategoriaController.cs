@@ -17,7 +17,7 @@ public class CategoriaController : ControllerBase
         _categoriaService = categoriaService ?? throw new ArgumentNullException(nameof(categoriaService));
     }
 
-    [HttpGet("listar")]
+    [HttpGet("listar{usuarioId}")]
     public async Task<IActionResult> ListarCategoriasConUsuarioId([FromQuery] int usuarioId)
     {
         if (usuarioId <= 0) return BadRequest(new ErrorResponse("El ID del usuario es inválido."));

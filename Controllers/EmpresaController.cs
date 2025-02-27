@@ -40,7 +40,7 @@ public class EmpresaController : ControllerBase
         }
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("listar/{id}")]
     public async Task<IActionResult> ObtenerEmpresa(int id)
     {
         if (id <= 0) return BadRequest(new ErrorResponse("El ID de la empresa debe ser mayor a cero."));
@@ -97,4 +97,22 @@ public class EmpresaController : ControllerBase
                 new ErrorResponse("Error interno del servidor al listar empresas por RUC.", ex.Message));
         }
     }
+    
+    [HttpGet("listar")]
+    public async Task<IActionResult> ListarEmpresas()
+    {
+        try
+        {
+            var empresas = await _empresaService.ObtenerEmpresasAsync();
+            if (empresas == null || !empresas.Any())
+                return NotFound(new ErrorResponse("No se encontraron empresas."));
+
+            return Ok(empresas);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new ErrorResponse("Error interno al listar las empresas.", ex.Message));
+        }
+    }
+
 }

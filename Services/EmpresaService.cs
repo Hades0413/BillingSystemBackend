@@ -56,4 +56,17 @@ public class EmpresaService
 
         return await _context.ListarEmpresasPorRucAsync(ruc);
     }
+    
+    public async Task<List<Empresa>> ObtenerEmpresasAsync()
+    {
+        try
+        {
+            return await _context.Empresas.AsNoTracking().ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al obtener las empresas.", ex);
+        }
+    }
+
 }

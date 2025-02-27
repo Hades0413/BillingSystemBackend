@@ -106,4 +106,24 @@ public class ProductoController : ControllerBase
                 new ErrorResponse("Hubo un problema al eliminar el producto. Intente nuevamente.", ex.Message));
         }
     }
+    
+    [HttpGet("listar")]
+    public async Task<IActionResult> ListarProductos()
+    {
+        try
+        {
+            var productos = await _productoService.ListarProductosAsync(); 
+            if (productos == null || productos.Count == 0)
+                return NotFound(new ErrorResponse("No se encontraron productos."));
+
+            return Ok(productos);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500,
+                new ErrorResponse("Hubo un problema al listar los productos. Intente nuevamente.", ex.Message));
+        }
+    }
+
+    
 }

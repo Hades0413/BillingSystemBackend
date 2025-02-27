@@ -1,5 +1,6 @@
 using BillingSystemBackend.Data;
 using BillingSystemBackend.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BillingSystemBackend.Services;
 
@@ -92,4 +93,17 @@ public class ProductoService
             return (false, $"Error al eliminar el producto: {ex.Message}");
         }
     }
+    
+    public async Task<List<Producto>> ListarProductosAsync()
+    {
+        try
+        {
+            return await _productoDbContext.Productos.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error al obtener los productos.", ex);
+        }
+    }
+
 }
