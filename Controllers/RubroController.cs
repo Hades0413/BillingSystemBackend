@@ -7,7 +7,6 @@ namespace BillingSystemBackend.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize] 
 public class RubroController : ControllerBase
 {
     private readonly RubroService _rubroService;
