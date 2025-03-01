@@ -7,7 +7,6 @@ namespace BillingSystemBackend.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize] 
 public class EmpresaController : ControllerBase
 {
     private readonly EmpresaService _empresaService;
