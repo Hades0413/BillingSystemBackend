@@ -49,9 +49,14 @@ public class UsuarioService
         var usuarioExistente = await _context.Usuarios.FindAsync(usuario.UsuarioId);
         if (usuarioExistente == null)
             return false; 
-        
+    
+        if (!string.IsNullOrEmpty(usuario.UsuarioContrasena) && usuario.UsuarioContrasena.Length >= 6)
+        {
+            usuario.UsuarioContrasena = BCrypt.Net.BCrypt.HashPassword(usuario.UsuarioContrasena);
+        }
+
         usuarioExistente.UsuarioCorreo = usuario.UsuarioCorreo;
-        usuarioExistente.UsuarioContrasena = usuario.UsuarioContrasena;
+        usuarioExistente.UsuarioContrasena = usuario.UsuarioContrasena; // Se asegura de que la contraseña cifrada se guarde.
         usuarioExistente.UsuarioTelefono = usuario.UsuarioTelefono;
         usuarioExistente.UsuarioNombres = usuario.UsuarioNombres;
         usuarioExistente.UsuarioApellidos = usuario.UsuarioApellidos;
@@ -61,6 +66,7 @@ public class UsuarioService
         await _context.SaveChangesAsync();
         return true;
     }
+
 
     
 }

@@ -9,10 +9,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de Kestrel
 builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(8080); });
 
-// Configuración de CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
@@ -47,7 +45,6 @@ builder.Services.AddDbContext<TipoComprobanteDbContext>(options =>
 builder.Services.AddDbContext<ClienteDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("sql")));
 
-// Registro de servicios
 builder.Services.AddScoped<UsuarioDbContext>();
 builder.Services.AddScoped<RubroDbContext>();
 builder.Services.AddScoped<EmpresaDbContext>();
