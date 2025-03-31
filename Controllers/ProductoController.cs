@@ -46,23 +46,28 @@ public class ProductoController : ControllerBase
     [HttpGet("listar/{usuarioId}")]
     public async Task<IActionResult> ListarProductos(int usuarioId)
     {
-        if (usuarioId <= 0) return BadRequest(new ErrorResponse("El ID del usuario debe ser mayor que 0."));
+        if (usuarioId <= 0)
+        {
+            return BadRequest(new { code = 400, message = "El ID del usuario debe ser mayor que 0." });
+        }
 
         try
         {
             var productos = await _productoService.ListarProductosConUsuarioIdAsync(usuarioId);
 
             if (productos == null || productos.Count == 0)
-                return NotFound(new ErrorResponse("No se encontraron productos para este usuario."));
+            {
+                return NotFound(new { code = 404, message = "Actualmente no tienes ningún producto, crea un nuevo producto por favor." });
+            }
 
-            return Ok(new SuccessResponse("Productos listados correctamente.", productos));
+            return Ok(new { code = 200, message = "Productos listados correctamente.", data = productos });
         }
         catch (Exception ex)
         {
-            return StatusCode(500,
-                new ErrorResponse("Hubo un problema al listar los productos. Intente nuevamente.", ex.Message));
+            return StatusCode(500, new { code = 500, message = "Hubo un problema al listar los productos. Intente nuevamente.", details = ex.Message });
         }
     }
+
 
 
     [HttpPut("editar/{productoId}")]

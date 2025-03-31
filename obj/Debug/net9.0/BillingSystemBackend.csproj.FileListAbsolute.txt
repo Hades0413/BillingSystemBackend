@@ -172,3 +172,12 @@
 /mnt/Disco2/Proyectos-Repo/BillingSystemBackend/obj/Debug/net9.0/BillingSystemBackend.pdb
 /mnt/Disco2/Proyectos-Repo/BillingSystemBackend/obj/Debug/net9.0/BillingSystemBackend.genruntimeconfig.cache
 /mnt/Disco2/Proyectos-Repo/BillingSystemBackend/obj/Debug/net9.0/ref/BillingSystemBackend.dll
+/mnt/Disco2/Proyectos-Repo/BillingSystemBackend/bin/Debug/net9.0/Microsoft.Extensions.Caching.Abstractions.dll
+/mnt/Disco2/Proyectos-Repo/BillingSystemBackend/bin/Debug/net9.0/Microsoft.Extensions.Caching.Memory.dll
+/mnt/Disco2/Proyectos-Repo/BillingSystemBackend/bin/Debug/net9.0/Microsoft.Extensions.Configuration.Abstractions.dll
+/mnt/Disco2/Proyectos-Repo/BillingSystemBackend/bin/Debug/net9.0/Microsoft.Extensions.DependencyInjection.dll
+/mnt/Disco2/Proyectos-Repo/BillingSystemBackend/bin/Debug/net9.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+/mnt/Disco2/Proyectos-Repo/BillingSystemBackend/bin/Debug/net9.0/Microsoft.Extensions.Logging.dll
+/mnt/Disco2/Proyectos-Repo/BillingSystemBackend/bin/Debug/net9.0/Microsoft.Extensions.Logging.Abstractions.dll
+/mnt/Disco2/Proyectos-Repo/BillingSystemBackend/bin/Debug/net9.0/Microsoft.Extensions.Options.dll
+/mnt/Disco2/Proyectos-Repo/BillingSystemBackend/bin/Debug/net9.0/Microsoft.Extensions.Primitives.dll

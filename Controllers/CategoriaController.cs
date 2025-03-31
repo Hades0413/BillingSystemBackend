@@ -7,7 +7,7 @@ namespace BillingSystemBackend.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize] 
+[Authorize]
 public class CategoriaController : ControllerBase
 {
     private readonly CategoriaService _categoriaService;
@@ -20,23 +20,28 @@ public class CategoriaController : ControllerBase
     [HttpGet("listar/{usuarioId}")]
     public async Task<IActionResult> ListarCategoriasConUsuarioId([FromRoute] int usuarioId)
     {
-        if (usuarioId <= 0) return BadRequest(new ErrorResponse("El ID del usuario es inválido."));
+        if (usuarioId <= 0)
+        {
+            return BadRequest(new { code = 400, message = "El ID del usuario es inválido." });
+        }
 
         try
         {
             var categorias = await _categoriaService.ListarCategoriasConUsuarioIdAsync(usuarioId);
 
             if (categorias == null || categorias.Count == 0)
-                return NotFound(new ErrorResponse("No se encontraron categorías para este usuario."));
+            {
+                return NotFound(new { code = 404, message = "Actualmente no tienes ninguna categoria, crea una nueva categoria por favor." });
+            }
 
-            return Ok(new SuccessResponse("Categorías obtenidas correctamente.", categorias));
+            return Ok(new { code = 200, message = "Categorías obtenidas correctamente.", data = categorias });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ErrorResponse("Error al obtener las categorías.", ex.Message));
+            return StatusCode(500,
+                new { code = 500, message = "Error al obtener las categorías.", details = ex.Message });
         }
     }
-
 
 
     [HttpPost("registrar")]
